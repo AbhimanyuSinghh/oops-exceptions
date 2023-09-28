@@ -76,7 +76,7 @@ The Library class has the following methods:
 * get_books_by_author(author): This method returns a list of books from the library's collection by their author.
 * get_books_by_genre(genre): This method returns a list of books from the library's collection by their genre.
 
-The Library class also has the following static methods:
+The Library class also has the following static methods::
 
 * get_all_books(): This method returns a list of all books in the library's collection.
 * get_number_of_books(): This method returns the number of books in the library's collection.
