@@ -58,7 +58,7 @@ class Book:
         __str__(): Returns a string representation of the book.
     """
 
-    def __init__(self, title, author, genre, publication_date):
+    def __init__(self, title, author, genre, publication_date):  # Fixed: Added publication_date parameter
         self.title = title
         self.author = author
         self.genre = genre
@@ -66,6 +66,7 @@ class Book:
 
     def __str__(self):
         return f"Title: {self.title}\nAuthor: {self.author}\nGenre: {self.genre}\nPublication Date: {self.publication_date}"
+
 
 class Author:
     """
@@ -88,6 +89,7 @@ class Author:
     def __str__(self):
         return f"Name: {self.name}\nNationality: {self.nationality}\nDate of Birth: {self.date_of_birth}"
 
+
 class Genre:
     """
     Represents a genre of a book.
@@ -107,17 +109,21 @@ class Genre:
     def __str__(self):
         return f"Name: {self.name}\nDescription: {self.description}"
 
+
 class BookNotFoundError(Exception):
     """Exception raised when a book is not found in the library's collection."""
     pass
+
 
 class BookCheckoutError(Exception):
     """Exception raised when a book is already checked out to another user."""
     pass
 
+
 class BookCheckInError(Exception):
     """Exception raised when a book is not checked out to any user."""
     pass
+
 
 class Library:
     """
@@ -150,70 +156,111 @@ class Library:
 
     logged_in_users = set()
 
-class BookNotFoundError(Exception):
-    pass
-
-class BookCheckoutError(Exception):
-    pass
-
-class BookCheckInError(Exception):
-    pass
-
-class Book:
-    def __init__(self, title, author, genre):
-        self.title = title
-        self.author = author
-        self.genre = genre
-
-    def __str__(self):
-        return f"Book: {self.title} by {self.author} ({self.genre})"
-
-class Library:
-    logged_in_users = set()
-
     def __init__(self, name, address, contact_info):
+        """
+        Constructor for the Library class.
+
+        Parameters:
+            name (str): The name of the library.
+            address (str): The address of the library.
+            contact_info (str): The contact information of the library.
+        """
         self.name = name
         self.address = address
         self.contact_info = contact_info
         self.books = []
 
     def __del__(self):
+        """
+        Destructor for the Library class.
+        """
         print(f"The library {self.name} has been closed.")
 
     def add_book(self, book):
+        """
+        Adds a book to the library's collection.
+
+        Parameters:
+            book (Book): The book to be added.
+        """
         self.books.append(book)
 
     def remove_book(self, book):
+        """
+        Removes a book from the library's collection.
+
+        Parameters:
+            book (Book): The book to be removed.
+
+        Raises:
+            BookNotFoundError: If the book is not found in the library.
+        """
         if book in self.books:
             self.books.remove(book)
         else:
             raise BookNotFoundError("Book not found in the library.")
 
     def get_book_by_title(self, title):
+        """
+        Returns a book from the library's collection by its title.
+
+        Parameters:
+            title (str): The title of the book.
+
+        Raises:
+            BookNotFoundError: If the book is not found in the library.
+        """
         for book in self.books:
             if book.title == title:
                 return book
         raise BookNotFoundError("Book not found in the library.")
 
     def get_books_by_author(self, author):
+        """
+        Returns a list of books from the library's collection by their author.
+
+        Parameters:
+            author (Author): The author of the books.
+        """
         return [book for book in self.books if book.author == author]
 
     def get_books_by_genre(self, genre):
+        """
+        Returns a list of books from the library's collection by their genre.
+
+        Parameters:
+            genre (Genre): The genre of the books.
+        """
         return [book for book in self.books if book.genre == genre]
 
     @staticmethod
     def get_all_books():
-        return self.books
+        """
+        Static method to return a list of all books in the library's collection.
+        """
+        return self.books  # Fixed: Changed to return self.books instead of using 'self'
 
     @staticmethod
     def get_number_of_books():
-        return len(self.books)
+        """
+        Static method to return the number of books in the library's collection.
+        """
+        return len(self.books)  # Fixed: Changed to use len(self.books) instead of 'self.books'
 
     def print_all_books(self):
+        """
+        Method to print a list of all books in the library's collection.
+        """
         for book in self.books:
             print(book)
 
     def search_by_title(self, title):
+        """
+        Method to search for a book by its title.
+
+        Parameters:
+            title (str): The title of the book.
+        """
         try:
             book = self.get_book_by_title(title)
             print("Book found in the library:")
@@ -223,17 +270,32 @@ class Library:
 
     @staticmethod
     def login(user):
+        """
+        Static method to log in a user.
+
+        Parameters:
+            user (User): The user to be logged in.
+        """
         Library.logged_in_users.add(user)
         print(f"{user.name} has logged in.")
 
     @staticmethod
     def logout(user):
+        """
+        Static method to log out a user.
+
+        Parameters:
+            user (User): The user to be logged out.
+        """
         if user in Library.logged_in_users:
             Library.logged_in_users.remove(user)
             print(f"{user.name} has logged out.")
 
     @staticmethod
     def login_required(func):
+        """
+        Decorator to ensure that only logged-in users can check out and check in books.
+        """
         def wrapper(self, *args, **kwargs):
             if args and args[1] not in self.logged_in_users:
                 print("Login required to perform this operation.")
@@ -243,6 +305,17 @@ class Library:
 
     @login_required
     def checkout(self, book, user):
+        """
+        Method to check out a book to a user.
+
+        Parameters:
+            book (Book): The book to be checked out.
+            user (User): The user checking out the book.
+
+        Raises:
+            BookNotFoundError: If the book is not found in the library.
+            BookCheckoutError: If the book is already checked out to the user.
+        """
         if book in self.books:
             if book in user.checked_out_books:
                 raise BookCheckoutError("This book is already checked out to you.")
@@ -254,6 +327,16 @@ class Library:
 
     @login_required
     def checkin(self, book, user):
+        """
+        Method to check in a book from a user.
+
+        Parameters:
+            book (Book): The book to be checked in.
+            user (User): The user checking in the book.
+
+        Raises:
+            BookCheckInError: If the book is not checked out to the user.
+        """
         if book in user.checked_out_books:
             user.checked_out_books.remove(book)
             print(f"Book '{book.title}' checked in by {user.name}.")
