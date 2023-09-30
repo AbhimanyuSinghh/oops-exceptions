@@ -44,9 +44,112 @@ The Library class also handles exceptions such as:
 The Library class also has a decorator to decorate its checkout() and checkin() methods to ensure that only logged-in users can check out and check in books.
 """
 
-import copy
+class Book:
+    """
+    Represents a book in the library.
 
-# User-defined exceptions
+    Attributes:
+        title (str): The title of the book.
+        author (Author): The author of the book.
+        genre (Genre): The genre of the book.
+        publication_date (str): The publication date of the book.
+
+    Methods:
+        __str__(): Returns a string representation of the book.
+    """
+
+    def __init__(self, title, author, genre, publication_date):
+        self.title = title
+        self.author = author
+        self.genre = genre
+        self.publication_date = publication_date
+
+    def __str__(self):
+        return f"Title: {self.title}\nAuthor: {self.author}\nGenre: {self.genre}\nPublication Date: {self.publication_date}"
+
+class Author:
+    """
+    Represents an author of a book.
+
+    Attributes:
+        name (str): The name of the author.
+        nationality (str): The nationality of the author.
+        date_of_birth (str): The date of birth of the author.
+
+    Methods:
+        __str__(): Returns a string representation of the author.
+    """
+
+    def __init__(self, name, nationality, date_of_birth):
+        self.name = name
+        self.nationality = nationality
+        self.date_of_birth = date_of_birth
+
+    def __str__(self):
+        return f"Name: {self.name}\nNationality: {self.nationality}\nDate of Birth: {self.date_of_birth}"
+
+class Genre:
+    """
+    Represents a genre of a book.
+
+    Attributes:
+        name (str): The name of the genre.
+        description (str): A description of the genre.
+
+    Methods:
+        __str__(): Returns a string representation of the genre.
+    """
+
+    def __init__(self, name, description):
+        self.name = name
+        self.description = description
+
+    def __str__(self):
+        return f"Name: {self.name}\nDescription: {self.description}"
+
+class BookNotFoundError(Exception):
+    """Exception raised when a book is not found in the library's collection."""
+    pass
+
+class BookCheckoutError(Exception):
+    """Exception raised when a book is already checked out to another user."""
+    pass
+
+class BookCheckInError(Exception):
+    """Exception raised when a book is not checked out to any user."""
+    pass
+
+class Library:
+    """
+    Represents the library.
+
+    Attributes:
+        name (str): The name of the library.
+        address (str): The address of the library.
+        contact_info (str): The contact information of the library.
+        books (list): A list to store the collection of books in the library.
+
+    Methods:
+        __init__(name, address, contact_info): Constructor for the Library class.
+        __del__(): Destructor for the Library class.
+        add_book(book): Adds a book to the library's collection.
+        remove_book(book): Removes a book from the library's collection.
+        get_book_by_title(title): Returns a book from the library's collection by its title.
+        get_books_by_author(author): Returns a list of books from the library's collection by their author.
+        get_books_by_genre(genre): Returns a list of books from the library's collection by their genre.
+        get_all_books(): Static method to return a list of all books in the library's collection.
+        get_number_of_books(): Static method to return the number of books in the library's collection.
+        print_all_books(): Method to print a list of all books in the library's collection.
+        search_by_title(title): Method to search for a book by its title.
+        checkout(book, user): Method to check out a book to a user.
+        checkin(book, user): Method to check in a book from a user.
+        login(user): Static method to log in a user.
+        logout(user): Static method to log out a user.
+        login_required(func): Decorator to ensure that only logged-in users can check out and check in books.
+    """
+
+    logged_in_users = set()
+
 class BookNotFoundError(Exception):
     pass
 
@@ -56,67 +159,33 @@ class BookCheckoutError(Exception):
 class BookCheckInError(Exception):
     pass
 
-# Base class for Author
-class Author:
-    def __init__(self, name, nationality, dob):
-        self.name = name
-        self.nationality = nationality
-        self.dob = dob
-
-    def __str__(self):
-        return f"{self.name} ({self.nationality}, {self.dob})"
-
-# Base class for Genre
-class Genre:
-    def __init__(self, name, description):
-        self.name = name
-        self.description = description
-
-    def __str__(self):
-        return f"{self.name}: {self.description}"
-
-# Base class for Book
 class Book:
-    def __init__(self, title, author, genre, pub_date):
+    def __init__(self, title, author, genre):
         self.title = title
         self.author = author
         self.genre = genre
-        self.pub_date = pub_date
 
     def __str__(self):
-        return f"{self.title} by {self.author}, {self.pub_date}\nGenre: {self.genre}"
+        return f"Book: {self.title} by {self.author} ({self.genre})"
 
-    def __repr__(self):
-        return f"Book('{self.title}', {repr(self.author)}, {repr(self.genre)}, '{self.pub_date}')"
-
-    def clone(self):
-        # Implementing object cloning using copy module
-        return copy.deepcopy(self)
-
-# Library class
 class Library:
-    # Static attribute to store all books
-    all_books = []
+    logged_in_users = set()
 
     def __init__(self, name, address, contact_info):
         self.name = name
         self.address = address
         self.contact_info = contact_info
-        # Collection of books using a list
         self.books = []
 
     def __del__(self):
-        print(f"The library {self.name} is closing.")
+        print(f"The library {self.name} has been closed.")
 
     def add_book(self, book):
         self.books.append(book)
-        # Adding the book to the static attribute for all books
-        Library.all_books.append(book)
 
     def remove_book(self, book):
         if book in self.books:
             self.books.remove(book)
-            Library.all_books.remove(book)
         else:
             raise BookNotFoundError("Book not found in the library.")
 
@@ -124,7 +193,7 @@ class Library:
         for book in self.books:
             if book.title == title:
                 return book
-        raise BookNotFoundError(f"Book with title '{title}' not found in the library.")
+        raise BookNotFoundError("Book not found in the library.")
 
     def get_books_by_author(self, author):
         return [book for book in self.books if book.author == author]
@@ -134,100 +203,59 @@ class Library:
 
     @staticmethod
     def get_all_books():
-        return Library.all_books
+        return self.books
 
     @staticmethod
     def get_number_of_books():
-        return len(Library.all_books)
+        return len(self.books)
 
-    def print_books(self):
+    def print_all_books(self):
         for book in self.books:
             print(book)
 
-    def search_book_by_title(self, title):
+    def search_by_title(self, title):
         try:
             book = self.get_book_by_title(title)
-            print(f"Book found:\n{book}")
+            print("Book found in the library:")
+            print(book)
         except BookNotFoundError as e:
-            print(e)
+            print(f"Error: {e}")
 
-    def checkout_decorator(func):
-        # Decorator to check if the user is logged in before checking out or checking in a book
-        def wrapper(self, book, user):
-            if user.is_logged_in:
-                return func(self, book, user)
-            else:
-                print("User not logged in. Please log in to check out or check in a book.")
+    @staticmethod
+    def login(user):
+        Library.logged_in_users.add(user)
+        print(f"{user.name} has logged in.")
+
+    @staticmethod
+    def logout(user):
+        if user in Library.logged_in_users:
+            Library.logged_in_users.remove(user)
+            print(f"{user.name} has logged out.")
+
+    @staticmethod
+    def login_required(func):
+        def wrapper(self, *args, **kwargs):
+            if args and args[1] not in self.logged_in_users:
+                print("Login required to perform this operation.")
+                return
+            return func(self, *args, **kwargs)
         return wrapper
 
-    @checkout_decorator
+    @login_required
     def checkout(self, book, user):
         if book in self.books:
-            if book not in user.checked_out_books:
-                user.checked_out_books.append(book)
-                self.books.remove(book)
-                print(f"{user.name} checked out {book.title}.")
+            if book in user.checked_out_books:
+                raise BookCheckoutError("This book is already checked out to you.")
             else:
-                raise BookCheckoutError(f"{book.title} is already checked out to {user.name}.")
+                user.checked_out_books.add(book)
+                print(f"Book '{book.title}' checked out to {user.name}.")
         else:
             raise BookNotFoundError("Book not found in the library.")
 
-    @checkout_decorator
+    @login_required
     def checkin(self, book, user):
         if book in user.checked_out_books:
             user.checked_out_books.remove(book)
-            self.books.append(book)
-            print(f"{user.name} checked in {book.title}.")
+            print(f"Book '{book.title}' checked in by {user.name}.")
         else:
-            raise BookCheckInError(f"{user.name} does not have {book.title} checked out.")
-
-# User class to represent library users
-class User:
-    def __init__(self, name):
-        self.name = name
-        self.checked_out_books = []
-        self.is_logged_in = False
-
-    def login(self):
-        self.is_logged_in = True
-        print(f"{self.name} is now logged in.")
-
-    def logout(self):
-        self.is_logged_in = False
-        print(f"{self.name} is now logged out.")
-
-# Sample usage
-if __name__ == "__main__":
-    # Creating instances of Author and Genre
-    author1 = Author("John Doe", "American", "01-01-1970")
-    genre1 = Genre("Mystery", "A mysterious genre")
-
-    # Creating instances of Book
-    book1 = Book("The Mystery Book", author1, genre1, "01-01-2000")
-
-    # Creating an instance of Library
-    library1 = Library("City Library", "123 Main St", "555-1234")
-
-    # Adding the book to the library
-    library1.add_book(book1)
-
-    # Creating a user
-    user1 = User("Alice")
-
-    # Logging in the user
-    user1.login()
-
-    # Checking out a book
-    library1.checkout(book1, user1)
-
-    # Printing all books in the library
-    library1.print_books()
-
-    # Searching for a book by title
-    library1.search_book_by_title("The Mystery Book")
-
-    # Checking in a book
-    library1.checkin(book1, user1)
-
-    # Logging out the user
-    user1.logout()
+            raise BookCheckInError("This book is not checked out to you.")
