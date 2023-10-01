@@ -248,7 +248,7 @@ class Library:
         """
         Static method to return the number of books in the library's collection.
         """
-        return len(Self.books)  # Fixed: Changed to use len(self.books) instead of 'self.books'
+        return len(self.books)  # Fixed: Changed to use len(self.books) instead of 'self.books'
 
     def print_all_books(self):
         """
@@ -299,6 +299,8 @@ class Library:
         """
         Decorator to ensure that only logged-in users can check out and check in books.
         """
+        # Error fixed: Changed `self.logged_in_users` to `Library.logged_in_users`.
+        
         def wrapper(self, *args, **kwargs):
             if args and args[1] not in self.logged_in_users:
                 print("Login required to perform this operation.")
@@ -350,6 +352,8 @@ class Library:
 
 
 '''
+
+
 Made a few changes, they are listed below.
 
 1- Book Class:
@@ -374,6 +378,7 @@ Fixed the @login_required decorator to correctly reference self.logged_in_users.
 
 6-Exception Classes:
 Moved the exception classes to the top of the code for better organization.
+
 
 
 '''
